@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import LoginPage from './components/LoginPage';
+import PasscodeScreen from './components/PasscodeScreen';
 import { 
   LayoutDashboard, 
   Package, 
@@ -67,9 +69,64 @@ const STATUS_DATA = [
   { name: 'Canceled', value: 25 },
 ];
 
+type AuthState = 'login' | 'passcode_setup' | 'passcode_verify' | 'authenticated';
+
 export default function App() {
+  const [authState, setAuthState] = useState<AuthState>('login');
+  const [userEmail, setUserEmail] = useState('');
   const [activeTab, setActiveTab] = useState('Dashboard');
 
+  // Restore session on mount (simple localStorage check)
+  useEffect(() => {
+    const session = localStorage.getItem('bolek_session');
+    if (session === 'authenticated') {
+      setAuthState('authenticated');
+    }
+  }, []);
+
+  const handleLoginSuccess = (email: string, _method: 'email' | 'google') => {
+    setUserEmail(email);
+    const hasPasscode = localStorage.getItem(`bolek_passcode_set_${email}`) === '1';
+    setAuthState(hasPasscode ? 'passcode_verify' : 'passcode_setup');
+  };
+
+  const handlePasscodeSuccess = () => {
+    localStorage.setItem('bolek_session', 'authenticated');
+    setAuthState('authenticated');
+  };
+
+  const handleBack = () => {
+    setAuthState('login');
+    setUserEmail('');
+  };
+
+  if (authState === 'login') {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  if (authState === 'passcode_setup') {
+    return (
+      <PasscodeScreen
+        email={userEmail}
+        mode="setup"
+        onSuccess={handlePasscodeSuccess}
+        onBack={handleBack}
+      />
+    );
+  }
+
+  if (authState === 'passcode_verify') {
+    return (
+      <PasscodeScreen
+        email={userEmail}
+        mode="verify"
+        onSuccess={handlePasscodeSuccess}
+        onBack={handleBack}
+      />
+    );
+  }
+
+  // ── Dashboard (authenticated) ─────────────────────────────────────────────
   return (
     <div className="flex h-screen bg-[#f0f2f5] overflow-hidden p-6">
       {/* Sidebar */}

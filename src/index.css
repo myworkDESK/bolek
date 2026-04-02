@@ -30,3 +30,31 @@
 .neumorphic-inset {
   box-shadow: var(--shadow-neumorphic-inset);
 }
+
+/* ── Login page background ─────────────────────────────────────────────────── */
+
+.login-bg {
+  background: linear-gradient(135deg, #f0f2f5 0%, #eef0f8 40%, #ede9f6 70%, #f0f2f5 100%);
+}
+
+.login-grid-pattern {
+  background-image:
+    radial-gradient(circle, #c7d2fe 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.45;
+}
+
+/* Passcode shake animation */
+@keyframes passcode-shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-6px); }
+  30%       { transform: translateX(6px); }
+  45%       { transform: translateX(-4px); }
+  60%       { transform: translateX(4px); }
+  75%       { transform: translateX(-2px); }
+  90%       { transform: translateX(2px); }
+}
+
+.passcode-shake {
+  animation: passcode-shake 0.5s ease-in-out;
+}
